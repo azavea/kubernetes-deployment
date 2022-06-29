@@ -1,3 +1,6 @@
+# Ignore Obsidian settings (users may freely customize their own vault)
+docs/.obsidian
+
 # Local .terraform directories
 **/.terraform/*
 
