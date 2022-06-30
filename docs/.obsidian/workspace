@@ -4,11 +4,27 @@
     "type": "split",
     "children": [
       {
-        "id": "ce6e9eec4a291f21",
+        "id": "44bc38d81a002547",
         "type": "leaf",
         "state": {
-          "type": "empty",
-          "state": {}
+          "type": "markdown",
+          "state": {
+            "file": "README.md",
+            "mode": "preview",
+            "source": false
+          }
+        }
+      },
+      {
+        "id": "57a8e89f4c131b3d",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "8-Documentation conventions/Obsidian.md",
+            "mode": "preview",
+            "source": false
+          }
         }
       }
     ],
@@ -65,6 +81,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "8-Documentation conventions/Obsidian.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -74,14 +91,36 @@
                 "unlinkedCollapsed": true
               }
             }
+          },
+          {
+            "id": "7179e9ecdb1acb72",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
-  "active": "ce6e9eec4a291f21",
-  "lastOpenFiles": []
+  "active": "57a8e89f4c131b3d",
+  "lastOpenFiles": [
+    "8-Documentation conventions/Obsidian.md",
+    "README.md",
+    "8-Documentation conventions/Note-taking style.md",
+    "2-Deployment/Public or private access in AWS.md",
+    "2-Deployment/Karpenter.md",
+    "2-Deployment/IAM roles for service accounts (IRSA).md",
+    "2-Deployment/Common add-ons.md",
+    "kube-proxy.md",
+    "2-Deployment/CoreDNS.md",
+    "8-Documentation conventions/Maps of Content.md"
+  ]
 }

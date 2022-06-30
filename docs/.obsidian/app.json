@@ -3,5 +3,12 @@
   "livePreview": true,
   "spellcheck": true,
   "foldIndent": false,
-  "foldHeading": false
+  "foldHeading": false,
+  "trashOption": "none",
+  "alwaysUpdateLinks": true,
+  "attachmentFolderPath": "9-System files/Attachments",
+  "autoPairBrackets": false,
+  "autoPairMarkdown": false,
+  "useMarkdownLinks": false,
+  "newFileLocation": "current"
 }
