@@ -6,7 +6,7 @@ This documentation is intended to be browsed using the [[#^obsidian|Obsidian]] a
 Links in Obsidian are made in [[#^wikilink|wikilink]] style.  This will make it harder for non-Obsidian users to browse this repository, but the simplicity will benefit note writers.  Links will normally be place in line, but relevant notes that did not find a natural place to mention in the body can be linked explicitly in the endnotes in "see also" fashion.
 
 ## Templates
-When creating new notes, please use the [[Entry]] template so that notes are dated.  This will ensure that notes are dated—useful for identifying out-of-date information—and similarly structured.  In Obsidian, after creating a new note and adding a title, use the `Ctrl+T` hotkey to insert the Entry template.  Common note types may have their own templates added in the future as need arises.
+When creating new notes, please use an appropriate template.  This will ensure that notes are dated—useful for identifying out-of-date information—and consistently formatted.  In Obsidian, after creating a new note and adding a title, use the `Ctrl+T` hotkey to insert the [[Entry]] template.  Common note types may have their own templates added in the future as need arises.
 
 ## Graph view
 Obsidian provides a graph view (accessible via the `Ctrl+G` hotkey) which provides a convenient way to navigate through existing topics.  We aim to cultivate the most useful graph view possible, as this ensures the most accessible knowledge base.  Submissions to this repository should be reviewed with an eye toward effective linking.
