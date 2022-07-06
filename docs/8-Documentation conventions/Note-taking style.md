@@ -1,6 +1,17 @@
 # Note-taking style
 Created: 2022-06-30, 13:29
 
+## What should be recorded
+Notes should serve the function of capturing information for future use _which cannot be easily acquired by other means_.  Notes which simply regurgitate content from a webpage that did not require intensive search to find can safely be left out.
+
+Information should be of general interest to others (not of idiosyncratic interest to the author alone).  Review of pull requests containing documentation will be the arbiter of whether a note meets the standard of general interest.
+
+Content that rises to the level of inclusion may include items in the list below, but need not be so rigidly defined.  Use your best judgment for what future users of this repository will be interested in seeing.
+
+1. Hard-won insights
+2. Ideas derived from discussions
+3. Conventions arising from prior choices that are arbitrary
+
 ## Atomic notes
 Effective notes are general and concise.  We follow the convention of using [[#^atomic-notes|atomic notes]] in this repository.  If a note must be extensive and cannot be refactored into smaller notes, linked by a [[Maps of Content|map of content]], please provide an executive summary at the top of the note.
 
