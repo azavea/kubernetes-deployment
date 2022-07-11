@@ -82,8 +82,8 @@ module "eks" {
       instance_types = [var.base_instance_type]
       capacity_type = var.base_instance_capacity_type
       min_size = 1
-      max_size = 1
-      desired_size = 1
+      max_size = var.num_base_instances
+      desired_size = var.num_base_instances
     }
   }
 
