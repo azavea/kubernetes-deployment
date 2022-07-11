@@ -13,7 +13,7 @@ Content that rises to the level of inclusion may include items in the list below
 3. Conventions arising from prior choices that are arbitrary
 
 ## Atomic notes
-Effective notes are general and concise.  We follow the convention of using [[#^atomic-notes|atomic notes]] in this repository.  If a note must be extensive and cannot be refactored into smaller notes, linked by a [[Maps of Content|map of content]], please provide an executive summary at the top of the note.
+Effective notes are general and concise.  We follow the convention of using [[#^atomic-notes|atomic notes]] in this repository.  If a note must be extensive and cannot be refactored into smaller notes, linked by a [[Maps of Content|map of content]], please structure notes so that necessary information is conveyed sooner, meaning that one does not need to read an entire, lengthy note to get the most important details.  Consider providing an executive summary at the top of the note.
 
 ## Note links and titles
 Notes with connections to other topics should be linked to other relevant topics.  This can be done using direct links, or with a map of content.  Obsidian can be used to browse backlinks, so it is not necessary to explicitly link back to referring notes.

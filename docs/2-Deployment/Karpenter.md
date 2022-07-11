@@ -7,6 +7,44 @@ In addition, Karpenter is more efficient about the allocation of resources than 
 
 Karpenter is an open source project, but it's main disadvantage is that it is developed by Amazon, and currently only supports that provider.
 
+## Setting up the provisioner
+Configuring Karpenter involves the creation of a manifest of `kind: Provisioner`.  Full documentation is [[#^provisioner-config|here]].  In practice, the provisioner configuration needs to be set so that new nodes are placed into the correct subnets and security groups.  Because base capacity needs to be provided (Karpenter, for instance, needs a place to run its pods), the security group for that base node group should be used or additional configuration will be needed to allow for communication with the default node group.
+
+It may also be desirable to identify the nodes created by Karpenter, so that application pods can target them.  A useful way to approach this is through the use of node labels, which can interact with node affinities in pod specs.  Note that the [[#^k8s-labels|well-known labels]] are generally [[#^karpenter-label-restrictions|prohibited]] for use as labels.
+
+A reference provisioner configuration:
+```yaml
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  labels:
+    created-by: karpenter
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["spot"]
+    - key: node.kubernetes.io/instance-type
+      operator: In
+      values: [...]
+  limits:
+    resources:
+      cpu: 1000
+  provider:
+    subnetSelector:
+      kubernetes.io/cluster/<cluster-name>: '*'
+    securityGroupSelector:
+      "aws:eks:cluster-name": <cluster_name>
+    instanceProfile:
+      KarpenterNodeInstanceProfile-<cluster_name>
+  ttlSecondsAfterEmpty: 30
+```
+Note that the `subnetSelector` and `securityGroupSelector` are targeting tags on the AWS resources.  EKS documentation can be consulted to see what tags will be assigned to various resources.
+
 ## Links/Tags/References
 1. https://karpenter.sh/
-2. #AWS
+2. https://karpenter.sh/v0.8.1/provisioner/ ^provisioner-config
+3.  https://kubernetes.io/docs/reference/labels-annotations-taints/ ^k8s-labels
+4. https://github.com/aws/karpenter/issues/1802 ^karpenter-label-restrictions
+5. #AWS
