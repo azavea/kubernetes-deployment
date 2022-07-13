@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${DEBUG}" ]]; then
+    set -x
+fi
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0") [environment]
+Deploy Kubernetes infrastructure to given environment.  The environment will be obtained with the following precedence:
+1. Through the ENVIRONMENT environment variable,
+2. As an argument to this script, or
+3. If not provided, the default value of `staging' will be used"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        if [[ -z "${S3_SETTINGS_PATH+x}" ]]; then
+            echo "WARNING: No S3_SETTINGS_PATH defined, falling back to default in docker-compose.ci.yml"
+        fi
+
+        PROVIDED_ENV=${1:-staging}
+        export ENVIRONMENT=${ENVIRONMENT:-$PROVIDED_ENV}
+        export CURRENT_UID=$(id -u):$(id -g)
+        CONFIGURED_REGION=$(aws configure get region)
+        export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-$CONFIGURED_REGION}
+
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra clear
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra plan
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra apply
+
+    fi
+fi

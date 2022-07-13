@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${DEBUG}" ]]; then
+    set -x
+fi
+
+DIR="$(dirname "$0")/../"
+
+function usage() {
+    echo -n \
+        "Usage: $(basename "$0") [environment]
+Launch a container environment for interacting with Terraform.  Targets staging environment if not provided, either via the ENVIRONMENT variable or as an argument.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    if [ "${1:-}" = "--help" ]; then
+        usage
+    else
+        PROVIDED_ENV=${1:-staging}
+        export ENVIRONMENT=${ENVIRONMENT:-$PROVIDED_ENV}
+        export CURRENT_UID=$(id -u):$(id -g)
+        echo "Entering console for $ENVIRONMENT environment"
+        docker-compose -f docker-compose.yml run -e AWS_DEFAULT_REGION=$(aws configure get region) terraform
+    fi
+fi
