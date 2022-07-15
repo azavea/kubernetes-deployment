@@ -1,20 +1,21 @@
 variable "aws_region" {
-  default = "us-east-1"
+  type=string
+  description="The AWS region to deploy into"
 }
 
 variable "app_name" {
   default = "k8s-application"
 }
 
+variable "environment" {
+  type = string
+  description = "Name of target environment (e.g., production, staging, QA, etc.)"
+}
+
 variable "repo_name" {
   type = string
   description = "Name of the Github repo hosting the deployment (for tagging)"
   default = "kubernetes"
-}
-
-variable "environment" {
-  type = string
-  description = "Name of target environment (e.g., production, staging, QA, etc.)"
 }
 
 variable "cluster_version" {
