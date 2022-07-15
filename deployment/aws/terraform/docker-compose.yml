@@ -11,7 +11,7 @@ services:
     user: ${CURRENT_UID}
     image: terraform-docker:azavea-k8s
     volumes:
-      - ./:/usr/local/src
+      - ../../..:/usr/local/src
       - $HOME/.aws:/home/$USER/.aws:ro
       - $HOME/.kube:/home/$USER/.kube
       - /var/run/docker.sock:/var/run/docker.sock:rw
@@ -19,9 +19,10 @@ services:
       - AWS_PROFILE
       - AWS_DEFAULT_REGION
       - USER
+      - HOME
       - ENVIRONMENT
       - DEBUG
       - EDITOR=vi
-      - S3_SETTINGS_BUCKET=${S3_SETTINGS_BUCKET:-azavea-k8s-settings}
-    working_dir: /usr/local/src
+      - S3_SETTINGS_BUCKET
+    working_dir: /usr/local/src/deployment/aws/terraform
     entrypoint: bash

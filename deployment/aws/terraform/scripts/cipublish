@@ -12,15 +12,15 @@ function usage() {
 Deploy Kubernetes infrastructure to given environment.  The environment will be obtained with the following precedence:
 1. Through the ENVIRONMENT environment variable,
 2. As an argument to this script, or
-3. If not provided, the default value of `staging' will be used"
+3. If not provided, the default value of \`staging' will be used"
 }
 
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     if [ "${1:-}" = "--help" ]; then
         usage
     else
-        if [[ -z "${S3_SETTINGS_PATH+x}" ]]; then
-            echo "WARNING: No S3_SETTINGS_PATH defined, falling back to default in docker-compose.ci.yml"
+        if [[ -z "${S3_SETTINGS_BUCKET+x}" ]]; then
+            echo "WARNING: No S3_SETTINGS_BUCKET defined, falling back to default"
         fi
 
         PROVIDED_ENV=${1:-staging}
@@ -28,6 +28,10 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         export CURRENT_UID=$(id -u):$(id -g)
         CONFIGURED_REGION=$(aws configure get region)
         export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-$CONFIGURED_REGION}
+        export S3_SETTINGS_BUCKET=${S3_SETTINGS_BUCKET:-azavea-kubernetes-settings-${AWS_DEFAULT_REGION}}
+
+        echo -e "$(tput bold)Deploying infrastructure for $(tput setaf 1)$ENVIRONMENT$(tput setaf 0) environment$(tput sgr0) (region=$(tput setaf 1)${AWS_DEFAULT_REGION}$(tput setaf 0))\nCancel within 3 seconds if not correct..."
+        sleep 3
 
         docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra clear
         docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra plan

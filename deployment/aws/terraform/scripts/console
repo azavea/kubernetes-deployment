@@ -22,7 +22,12 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         PROVIDED_ENV=${1:-staging}
         export ENVIRONMENT=${ENVIRONMENT:-$PROVIDED_ENV}
         export CURRENT_UID=$(id -u):$(id -g)
-        echo "Entering console for $ENVIRONMENT environment"
-        docker-compose -f docker-compose.yml run -e AWS_DEFAULT_REGION=$(aws configure get region) terraform
+        export CURRENT_UID=$(id -u):$(id -g)
+        CONFIGURED_REGION=$(aws configure get region)
+        export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-$CONFIGURED_REGION}
+        export S3_SETTINGS_BUCKET=${S3_SETTINGS_BUCKET:-azavea-kubernetes-settings-${AWS_DEFAULT_REGION}}
+
+        echo "$(tput bold)Entering console for $(tput setaf 1)$ENVIRONMENT$(tput setaf 0) environment$(tput sgr0) (region=$(tput setaf 1)${AWS_DEFAULT_REGION}$(tput setaf 0))"
+        docker-compose -f docker-compose.yml run terraform
     fi
 fi

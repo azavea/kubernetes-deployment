@@ -61,7 +61,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     pushd "${TERRAFORM_DIR}" > /dev/null
     REGION=${AWS_DEFAULT_REGION:-$(aws configure get region)}
 
-    S3_SETTINGS_KEY=${REGION}/${ENVIRONMENT}
+    S3_SETTINGS_KEY=${ENVIRONMENT}
     aws s3 cp "s3://${S3_SETTINGS_BUCKET}/${S3_SETTINGS_KEY}/terraform.tfvars" "terraform-${ENVIRONMENT}.tfvars"
 
     case "${1}" in
@@ -77,15 +77,33 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
                       -backend-config="region=${REGION}"
 
             terraform plan \
+                      -var "aws_region=${REGION}" \
+                      -var "environment=${ENVIRONMENT}" \
+                      -var-file "terraform-${ENVIRONMENT}.tfvars" \
                       -out="azavea-k8s-${ENVIRONMENT}.tfplan"
             ;;
         apply)
-            terraform apply "azavea-k8s-${ENVIRONMENT}.tfplan"
+            terraform apply \
+                      -var "aws_region=${REGION}" \
+                      -var "environment=${ENVIRONMENT}" \
+                      -var-file "terraform-${ENVIRONMENT}.tfvars" \
+                      "azavea-k8s-${ENVIRONMENT}.tfplan"
             ;;
         destroy)
             CLUSTER_ARN=$(terraform output -raw cluster_arn)
-            terraform plan -destroy -out=azavea-k8s-destroy.tfplan
-            terraform apply --auto-approve -destroy azavea-k8s-destroy.tfplan
+            terraform plan \
+                      -destroy \
+                      -var "aws_region=${REGION}" \
+                      -var "environment=${ENVIRONMENT}" \
+                      -var-file "terraform-${ENVIRONMENT}.tfvars" \
+                      -out=azavea-k8s-destroy.tfplan
+            terraform apply \
+                      --auto-approve \
+                      -destroy \
+                      -var "aws_region=${REGION}" \
+                      -var "environment=${ENVIRONMENT}" \
+                      -var-file "terraform-${ENVIRONMENT}.tfvars" \
+                      azavea-k8s-destroy.tfplan
             kubectl config unset "clusters.${CLUSTER_ARN}"
             kubectl config unset "contexts.${CLUSTER_ARN}"
             kubectl config unset "users.${CLUSTER_ARN}"
