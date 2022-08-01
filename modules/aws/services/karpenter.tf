@@ -3,26 +3,26 @@ data "aws_iam_policy" "ssm_managed_instance" {
 }
 
 resource "aws_iam_role_policy_attachment" "karpenter_ssm_policy" {
-  role       = module.eks.eks_managed_node_groups.base.iam_role_name
+  role       = var.cluster.base_node_iam_role_name
   policy_arn = data.aws_iam_policy.ssm_managed_instance.arn
 }
 
 resource "aws_iam_instance_profile" "karpenter" {
-  name = "KarpenterNodeInstanceProfile-${local.cluster_name}"
-  role = module.eks.eks_managed_node_groups.base.iam_role_name
+  name = "KarpenterNodeInstanceProfile-${var.cluster.id}"
+  role = var.cluster.base_node_iam_role_name
 }
 
 module "iam_assumable_role_karpenter" {
   source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version                       = "4.7.0"
   create_role                   = true
-  role_name                     = "karpenter-controller-${local.cluster_name}"
-  provider_url                  = module.eks.cluster_oidc_issuer_url
+  role_name                     = "karpenter-controller-${var.cluster.id}"
+  provider_url                  = var.cluster.oidc_issuer_url
   oidc_fully_qualified_subjects = ["system:serviceaccount:karpenter:karpenter"]
 }
 
 resource "aws_iam_role_policy" "karpenter_controller" {
-  name = "karpenter-policy-${local.cluster_name}"
+  name = "karpenter-policy-${var.cluster.id}"
   role = module.iam_assumable_role_karpenter.iam_role_name
 
   policy = jsonencode({
@@ -53,7 +53,6 @@ resource "aws_iam_role_policy" "karpenter_controller" {
 }
 
 resource "helm_release" "karpenter" {
-  depends_on       = [module.eks.kubeconfig]
   namespace        = "karpenter"
   create_namespace = true
 
@@ -74,7 +73,7 @@ resource "helm_release" "karpenter" {
 
   set {
     name  = "controller.clusterEndpoint"
-    value = module.eks.cluster_endpoint
+    value = var.cluster.cluster_endpoint
   }
 }
 
@@ -84,12 +83,12 @@ module "karpenter_controller_irsa_role" {
   role_name                          = "karpenter-controller"
   attach_karpenter_controller_policy = true
 
-  karpenter_controller_cluster_id         = module.eks.cluster_id
-  karpenter_controller_node_iam_role_arns = [for ng in module.eks.eks_managed_node_groups: ng.iam_role_arn]
+  karpenter_controller_cluster_id         = var.cluster.id
+  karpenter_controller_node_iam_role_arns = [var.cluster.base_node_iam_role_arn]
 
   oidc_providers = {
     ex = {
-      provider_arn               = module.eks.oidc_provider_arn
+      provider_arn               = var.cluster.oidc_provider_arn
       namespace_service_accounts = ["karpenter:karpenter"]
     }
   }
@@ -129,6 +128,5 @@ resource "kubectl_manifest" "karpenter_provisioner" {
 
   depends_on = [
     helm_release.karpenter,
-    null_resource.kubectl
   ]
 }
