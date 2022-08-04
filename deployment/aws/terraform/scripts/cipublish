@@ -31,11 +31,19 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         export S3_SETTINGS_BUCKET=${S3_SETTINGS_BUCKET:-azavea-kubernetes-settings-${AWS_DEFAULT_REGION}}
 
         echo -e "$(tput bold)Deploying infrastructure for $(tput setaf 1)$ENVIRONMENT$(tput setaf 0) environment$(tput sgr0) (region=$(tput setaf 1)${AWS_DEFAULT_REGION}$(tput setaf 0))\nCancel within 3 seconds if not correct..."
-        sleep 3
+        sleep 1
+        echo "2..."
+        sleep 1
+        echo "1..."
+        sleep 1
 
-        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra clear
-        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra plan
-        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra apply
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra clear 0-hardware
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra plan 0-hardware
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra apply 0-hardware
+
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra clear 1-system
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra plan 1-system
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra apply 1-system
 
     fi
 fi
