@@ -4,6 +4,7 @@ locals {
 
   tags = {
     Name    = var.app_name
+    Environment = var.environment
     GithubRepo = var.repo_name
     GithubOrg  = "azavea"
   }

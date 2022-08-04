@@ -29,3 +29,7 @@ output "endpoint" {
 output "id" {
   value = data.aws_eks_cluster.main.id
 }
+
+output "cluster_certificate_authority_data" {
+  value = data.aws_eks_cluster.main.certificate_authority[0].data
+}

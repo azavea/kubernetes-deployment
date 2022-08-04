@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 # This policy is required for the KMS key used for EKS root volumes, so the cluster is allowed to enc/dec/attach encrypted EBS volumes
 data "aws_iam_policy_document" "ebs" {
   # Copy of default KMS policy that lets you manage it
