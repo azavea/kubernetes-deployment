@@ -2,7 +2,7 @@ provider "aws" {}
 
 terraform {
   backend "s3" {
-    region = local.region
+    region = var.aws_region
     encrypt = "true"
   }
 

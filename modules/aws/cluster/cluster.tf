@@ -14,3 +14,14 @@ data "aws_eks_node_group" "base" {
 data "aws_iam_openid_connect_provider" "main" {
   url = data.aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
+
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_eks_cluster.main.vpc_config[0].vpc_id]
+  }
+
+  tags = {
+    "kubernetes.io/role/elb" = "1"
+  }
+}

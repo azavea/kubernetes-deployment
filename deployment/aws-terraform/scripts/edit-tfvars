@@ -15,7 +15,7 @@ fi
 
 REGION=${AWS_DEFAULT_REGION:-$(aws configure get region)}
 
-TFVARS_S3_PATH=s3://${S3_SETTINGS_BUCKET}/${REGION}/${ENVIRONMENT}/terraform.tfvars
+TFVARS_S3_PATH=s3://${S3_SETTINGS_BUCKET}/${ENVIRONMENT}/terraform.tfvars
 
 TO_EDIT_TMP_FILE=$(mktemp)
 TO_COMPARE_TMP_FILE=$(mktemp)

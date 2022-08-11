@@ -45,5 +45,9 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra plan 1-system
         docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra apply 1-system
 
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra clear 2-applications
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra plan 2-applications
+        docker-compose -f docker-compose.yml run --rm terraform ./scripts/infra apply 2-applications
+
     fi
 fi
