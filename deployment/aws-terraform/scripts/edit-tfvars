@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -ex
+
+# Check for required variables
+if [ x"${S3_SETTINGS_BUCKET}" == "x" ]; then
+    echo -e "ERROR: S3_SETTINGS_BUCKET environment variable is not defined.  Please specify\nand try again.  (Are you running this in the docker-compose environment?)"
+    exit 1
+fi
+
+if [ x"${ENVIRONMENT}" == "x" ]; then
+    echo -e "ERROR: ENVIRONMENT environment variable is not defined.  Please specify and try\nagain.  (Are you running this in the docker-compose environment?)"
+    exit 1
+fi
+
+REGION=${AWS_DEFAULT_REGION:-$(aws configure get region)}
+
+TFVARS_S3_PATH=s3://${S3_SETTINGS_BUCKET}/${ENVIRONMENT}/terraform.tfvars
+
+TO_EDIT_TMP_FILE=$(mktemp)
+TO_COMPARE_TMP_FILE=$(mktemp)
+
+aws --quiet s3 cp --sse AES256 "${TFVARS_S3_PATH}" "${TO_EDIT_TMP_FILE}"
+cp -f "${TO_EDIT_TMP_FILE}" "${TO_COMPARE_TMP_FILE}"
+
+if [[ -n "${EDITOR}" ]]; then
+    "${EDITOR}" "${TO_EDIT_TMP_FILE}"
+else
+    echo "Please specify an EDITOR!"
+    rm ${TO_EDIT_TMP_FILE} ${TO_COMPARE_TMP_FILE}
+    exit 1
+fi
+
+if ! cmp -s "${TO_EDIT_TMP_FILE}" "${TO_COMPARE_TMP_FILE}"; then
+  echo
+  (diff -a -u "${TO_COMPARE_TMP_FILE}" "${TO_EDIT_TMP_FILE}") || true
+  echo
+  read -p "Does that look reasonable? (y/n) " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+      aws --quiet s3 cp --sse AES256 "${TO_EDIT_TMP_FILE}" "${TFVARS_S3_PATH}"
+  fi
+else
+  echo "No changes to upload"
+fi
+
+rm ${TO_EDIT_TMP_FILE} ${TO_COMPARE_TMP_FILE}

@@ -1,0 +1,125 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${DEBUG}" ]]; then
+    set -x
+fi
+
+DIR="$(dirname "$0")"
+
+function usage() {
+    echo -n \
+"Usage: $(basename "$0") COMMAND OPTION[S]
+Execute Terraform subcommands with remote state management.
+COMMANDS:
+    clear       Clear stale modules and remote state
+    plan        Initialize and plan infrastructure execution
+    apply       Create infrastructure
+    connect     Connect existing infrastructure to host machine
+    disconnect  Remove cluster from host's .kube/config
+    destroy     Remove existing infrastructure
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    BASE_DIR="${DIR}/.."
+    if [ "${1:-}" = "--help" ]; then
+        usage
+        exit 0
+    elif [ "${1:-}" = "connect" ]; then
+        TERRAFORM_DIR="${BASE_DIR}/0-hardware"
+        pushd "${TERRAFORM_DIR}" > /dev/null
+        aws eks update-kubeconfig --name $(terraform output -raw cluster_name)
+        popd > /dev/null
+        exit 0
+    elif [ "${1:-}" = "disconnect" ]; then
+        TERRAFORM_DIR="${BASE_DIR}/0-hardware"
+        pushd "${TERRAFORM_DIR}" > /dev/null
+        CLUSTER_ARN=$(terraform output -raw cluster_arn)
+        kubectl config unset "clusters.${CLUSTER_ARN}"
+        kubectl config unset "contexts.${CLUSTER_ARN}"
+        kubectl config unset "users.${CLUSTER_ARN}"
+        popd > /dev/null
+        exit 0
+    else
+        if [[ $# -ne 2 ]]; then
+            echo "Stage not provided"
+            exit 1
+        fi
+        STAGE=${2}
+
+        echo
+        echo "Running infra ${1:-} for stage ${STAGE}..."
+        echo "-----------------------------------------------------"
+        echo
+    fi
+
+    # Check for required variables
+    if [ x"${S3_SETTINGS_BUCKET}" == "x" ]; then
+        echo -e "ERROR: S3_SETTINGS_BUCKET environment variable is not defined.  Please specify\nand try again.  (Are you running this in the docker-compose environment?)"
+        exit 1
+    fi
+
+    if [ x"${ENVIRONMENT}" == "x" ]; then
+        echo -e "ERROR: ENVIRONMENT environment variable is not defined.  Please specify and try\nagain.  (Are you running this in the docker-compose environment?)"
+        exit 1
+    fi
+
+    pushd "${BASE_DIR}/${STAGE}" > /dev/null
+    REGION=${AWS_DEFAULT_REGION:-$(aws configure get region)}
+
+    S3_SETTINGS_KEY=${ENVIRONMENT}
+
+    case "${1}" in
+        clear)
+            rm -rf .terraform terraform.tfstate*
+            ;;
+        plan)
+            aws s3 cp --region ${REGION} "s3://${S3_SETTINGS_BUCKET}/${S3_SETTINGS_KEY}/terraform.tfvars" \
+                "../terraform-${ENVIRONMENT}.tfvars"
+            terraform init \
+                      -upgrade -migrate-state \
+                      -backend-config="bucket=${S3_SETTINGS_BUCKET}" \
+                      -backend-config="key=${S3_SETTINGS_KEY}/terraform/${STAGE}" \
+                      -backend-config="region=${REGION}"
+
+            terraform plan \
+                      -var "aws_region=${REGION}" \
+                      -var "environment=${ENVIRONMENT}" \
+                      -var-file "../terraform-${ENVIRONMENT}.tfvars" \
+                      -out="azavea-k8s-${ENVIRONMENT}.tfplan"
+            ;;
+        apply)
+            terraform apply "azavea-k8s-${ENVIRONMENT}.tfplan"
+            ;;
+        destroy)
+            if [[ $STAGE =~ 0-hardware/? ]]; then
+                CLUSTER_ARN=$(terraform output -raw cluster_arn)
+            fi
+            terraform plan \
+                      -destroy \
+                      -var "aws_region=${REGION}" \
+                      -var "environment=${ENVIRONMENT}" \
+                      -var-file "../terraform-${ENVIRONMENT}.tfvars" \
+                      -out=azavea-k8s-destroy.tfplan
+            terraform apply \
+                      --auto-approve \
+                      -destroy \
+                      azavea-k8s-destroy.tfplan
+            if [[ $STAGE =~ 0-hardware/? ]]; then
+                kubectl config unset "clusters.${CLUSTER_ARN}"
+                kubectl config unset "contexts.${CLUSTER_ARN}"
+                kubectl config unset "users.${CLUSTER_ARN}"
+            fi
+            rm -f azavea-k8s-destroy.tfplan
+            ;;
+        *)
+            echo "ERROR: I don't have support for that subcommand!"
+            usage
+            exit 1
+            ;;
+    esac
+
+    popd > /dev/null
+fi
