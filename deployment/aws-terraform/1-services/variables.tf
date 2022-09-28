@@ -17,8 +17,3 @@ variable "worker_instance_types" {
   type=list(string)
   description="The menu of node instance types for worker nodes"
 }
-
-variable "argo_workflows_chart_version" {
-  type = string
-  default = "0.16.8"
-}
