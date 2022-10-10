@@ -8,6 +8,11 @@ variable "environment" {
   description="Name of target environment (e.g., production, staging, QA, etc.).  This will be set by wrapper scripts from the active profile, avoid setting in the .tfvars file"
 }
 
+variable "project_prefix" {
+  type=string
+  description="The project name prefix used to identify cluster resources.  This will be set by wrapper scripts; avoid setting in the .tfvars file!"
+}
+
 variable "karpenter_chart_version" {
   type = string
   default = "v0.6.3"
@@ -18,7 +23,171 @@ variable "worker_instance_types" {
   description="The menu of node instance types for worker nodes"
 }
 
-variable "argo_workflows_chart_version" {
+variable "r53_rds_private_hosted_zone" {
   type = string
-  default = "0.16.8"
+  default = null
+  description = "The name of the private zone to launch the RDS instance into"
+}
+
+variable "create_rds_instance" {
+  type = bool
+  description = "Flag to determine if an RDS instance should be created"
+  default = false
+}
+
+variable "rds_database_identifier" {
+  type = string
+  default = null
+}
+
+variable "rds_database_name" {
+  type = string
+  default = null
+}
+
+variable "rds_database_username" {
+  type = string
+  sensitive = true
+  default = null
+}
+
+variable "rds_database_password" {
+  type = string
+  sensitive = true
+  default = null
+}
+
+variable "rds_final_snapshot_identifier" {
+  default = "rds-snapshot"
+  type    = string
+}
+
+variable "rds_allocated_storage" {
+  default = 32
+  type    = number
+}
+
+variable "rds_engine_version" {
+  default = 12.8
+  type    = number
+}
+
+variable "rds_parameter_group_family" {
+  default = "postgres12"
+  type    = string
+}
+
+variable "rds_instance_type" {
+  default = "db.t3.micro"
+  type    = string
+}
+
+variable "rds_storage_type" {
+  default = "gp2"
+  type    = string
+}
+
+variable "rds_backup_retention_period" {
+  default = 30
+  type    = number
+}
+
+variable "rds_backup_window" {
+  default = "04:00-04:30"
+  type    = string
+}
+
+variable "rds_maintenance_window" {
+  default = "sun:04:30-sun:05:30"
+  type    = string
+}
+
+variable "rds_auto_minor_version_upgrade" {
+  default = true
+  type    = bool
+}
+
+variable "rds_monitoring_interval" {
+  default = 60
+  type    = number
+}
+
+variable "rds_skip_final_snapshot" {
+  default = false
+  type    = bool
+}
+
+variable "rds_copy_tags_to_snapshot" {
+  default = true
+  type    = bool
+}
+
+variable "rds_multi_az" {
+  default = false
+  type    = bool
+}
+
+variable "rds_storage_encrypted" {
+  default = false
+  type    = bool
+}
+
+variable "rds_deletion_protection" {
+  default = true
+  type    = bool
+}
+
+variable "rds_log_min_duration_statement" {
+  default = 500
+  type    = number
+}
+
+variable "rds_log_connections" {
+  default = 0
+  type    = number
+}
+
+variable "rds_log_disconnections" {
+  default = 0
+  type    = number
+}
+
+variable "rds_log_lock_waits" {
+  default = 1
+  type    = number
+}
+
+variable "rds_log_temp_files" {
+  default = 500
+  type    = number
+}
+
+variable "rds_log_autovacuum_min_duration" {
+  default = 250
+  type    = number
+}
+
+variable "rds_cpu_threshold_percent" {
+  default = 75
+  type    = number
+}
+
+variable "rds_disk_queue_threshold" {
+  default = 10
+  type    = number
+}
+
+variable "rds_free_disk_threshold_bytes" {
+  default = 5000000000
+  type    = number
+}
+
+variable "rds_free_memory_threshold_bytes" {
+  default = 128000000
+  type    = number
+}
+
+variable "rds_cpu_credit_balance_threshold" {
+  default = 30
+  type    = number
 }

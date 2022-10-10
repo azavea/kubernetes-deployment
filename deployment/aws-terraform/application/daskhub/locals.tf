@@ -1,6 +1,7 @@
 locals {
   cluster_name = "${var.project_prefix}-${var.environment}"
-  db_count = var.create_rds_instance ? 1 : 0
+  cognito_domain = "${var.auth_domain_prefix}.auth.${var.aws_region}.amazoncognito.com"
+  jupyter_dns_prefix = var.environment == "production" ? "jupyter" : "${var.environment}.jupyter"
 
   tags = {
     Name    = var.project_prefix

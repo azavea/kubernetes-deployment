@@ -7,20 +7,21 @@ services:
       args:
         - KUBECTL_VERSION=${KUBECTL_VERSION:-v1.23.6}
         - HELM_VERSION=${HELM_VERSION:-v3.8.2}
+        - DOCKER_GID=${DOCKER_GID}
         - USER=${USER}
-    user: ${CURRENT_UID}
+        - UID
+        - GID
+    #user: ${CURRENT_UID}
     image: terraform-docker:azavea-k8s
     volumes:
       - ../..:/usr/local/src
-      - $WORKDIR:/home/$USER
       - $HOME/.aws:/home/$USER/.aws:ro
       - $HOME/.kube:/home/$USER/.kube
       - /var/run/docker.sock:/var/run/docker.sock:rw
     environment:
       - AWS_PROFILE
       - AWS_DEFAULT_REGION
-      - USER
-      - HOME
+      - PROJECT_NAME=azavea
       - ENVIRONMENT
       - DEBUG
       - EDITOR=vi

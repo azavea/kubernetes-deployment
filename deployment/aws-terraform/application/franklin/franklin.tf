@@ -49,9 +49,7 @@ resource "kubernetes_deployment" "franklin" {
             "--api-host", "${local.franklin_dns_prefix}.${var.r53_public_hosted_zone}",
             "--api-scheme", "http",
             "--internal-port", "8080",
-            "--with-transactions",
-            "--with-tiles",
-            "--run-migrations"
+            "--with-transactions"
           ]
 
           env {
@@ -64,11 +62,11 @@ resource "kubernetes_deployment" "franklin" {
           }
           env {
             name = "DB_NAME"
-            value = "franklin"
+            value = var.rds_database_name
           }
           env {
             name = "DB_HOST"
-            value = aws_route53_record.database.fqdn
+            value = var.rds_fqdn #aws_route53_record.database.fqdn
           }
           env {
             name = "DB_PORT"

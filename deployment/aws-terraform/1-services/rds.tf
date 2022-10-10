@@ -1,19 +1,22 @@
 resource "aws_sns_topic" "global" {
-  name = "globalNotifications-Azavea-${var.environment}"
+  count = local.db_count
+  name = "globalNotifications-${var.project_prefix}-${var.environment}"
 }
 
 resource "aws_db_subnet_group" "default" {
+  count = local.db_count
   name        = var.rds_database_identifier
   description = "Private subnets for the RDS instances"
   subnet_ids  = module.eks.vpc_private_subnet_ids
 
   tags = {
     Name    = "dbsngDatabaseServer"
-    Project = "azavea-${var.environment}"
+    Project = "${var.project_prefix}-${var.environment}"
   }
 }
 
 resource "aws_db_parameter_group" "default" {
+  count = local.db_count
   name_prefix = var.rds_database_identifier
   description = "Parameter group for the RDS instances"
   family      = var.rds_parameter_group_family
@@ -50,7 +53,7 @@ resource "aws_db_parameter_group" "default" {
 
   tags = {
     Name    = "dbpgDatabaseServer"
-    Project = "azavea-${var.environment}"
+    Project = "${var.project_prefix}-${var.environment}"
   }
 
   lifecycle {
@@ -59,6 +62,7 @@ resource "aws_db_parameter_group" "default" {
 }
 
 module "database" {
+  count = local.db_count
   source = "github.com/azavea/terraform-aws-postgresql-rds?ref=3.0.0"
 
   vpc_id                     = module.eks.vpc_id
@@ -79,8 +83,8 @@ module "database" {
   copy_tags_to_snapshot      = var.rds_copy_tags_to_snapshot
   multi_availability_zone    = var.rds_multi_az
   storage_encrypted          = var.rds_storage_encrypted
-  subnet_group               = aws_db_subnet_group.default.name
-  parameter_group            = aws_db_parameter_group.default.name
+  subnet_group               = aws_db_subnet_group.default[0].name
+  parameter_group            = aws_db_parameter_group.default[0].name
   deletion_protection        = var.rds_deletion_protection
 
   alarm_cpu_threshold                = var.rds_cpu_threshold_percent
@@ -88,19 +92,20 @@ module "database" {
   alarm_free_disk_threshold          = var.rds_free_disk_threshold_bytes
   alarm_free_memory_threshold        = var.rds_free_memory_threshold_bytes
   alarm_cpu_credit_balance_threshold = var.rds_cpu_credit_balance_threshold
-  alarm_actions                      = [aws_sns_topic.global.arn]
-  ok_actions                         = [aws_sns_topic.global.arn]
-  insufficient_data_actions          = [aws_sns_topic.global.arn]
+  alarm_actions                      = [aws_sns_topic.global[0].arn]
+  ok_actions                         = [aws_sns_topic.global[0].arn]
+  insufficient_data_actions          = [aws_sns_topic.global[0].arn]
 
-  project     = "azavea-kubernetes"
+  project     = "${var.project_prefix}-kubernetes"
   environment = var.environment
 }
 
 resource "aws_security_group_rule" "rds_node_access" {
+  count = local.db_count
   type = "ingress"
   from_port = 0
-  to_port = module.database.port
+  to_port = module.database[0].port
   protocol = "tcp"
   source_security_group_id = module.eks.cluster_security_group
-  security_group_id = module.database.database_security_group_id
+  security_group_id = module.database[0].database_security_group_id
 }

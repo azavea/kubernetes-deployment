@@ -122,7 +122,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
       securityGroupSelector:
         "aws:eks:cluster-name": ${local.cluster_name}
       tags:
-        azavea.com/kubernetes: 'provisioner'
+        ${var.project_prefix}/kubernetes: 'provisioner'
       instanceProfile:
         KarpenterNodeInstanceProfile-${local.cluster_name}
     ttlSecondsAfterEmpty: 30
