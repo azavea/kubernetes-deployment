@@ -3,5 +3,5 @@ output "cluster_arn" {
 }
 
 output "cluster_name" {
-  value = "azavea-${var.environment}"
+  value = "${var.project_prefix}-${var.environment}"
 }

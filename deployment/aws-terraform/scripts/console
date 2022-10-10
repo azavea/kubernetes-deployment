@@ -21,14 +21,15 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     else
         PROVIDED_ENV=${1:-staging}
         export ENVIRONMENT=${ENVIRONMENT:-$PROVIDED_ENV}
-        export CURRENT_UID=$(id -u):$(id -g)
+        #export CURRENT_UID=$(id -u):$(id -g)
         CONFIGURED_REGION=$(aws configure get region)
         export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-$CONFIGURED_REGION}
         export S3_SETTINGS_BUCKET=${S3_SETTINGS_BUCKET:-azavea-kubernetes-settings-${AWS_DEFAULT_REGION}}
-        export WORKDIR=$(mktemp -d)
+        #export WORKDIR=$(mktemp -d)
+        export DOCKER_GID=$(getent group docker | awk -F: '{print $3}')
 
         echo "$(tput bold)Entering console for $(tput setaf 1)$ENVIRONMENT$(tput setaf 0) environment$(tput sgr0) (region=$(tput setaf 1)${AWS_DEFAULT_REGION}$(tput setaf 0))"
         docker-compose -f docker-compose.yml run terraform
-        rm -rf $WORKDIR
+        #rm -rf $WORKDIR
     fi
 fi

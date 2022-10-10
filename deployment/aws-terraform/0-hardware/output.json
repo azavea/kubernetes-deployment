@@ -1,0 +1,4 @@
+{
+  "cluster_arn": "arn:aws:eks:us-west-2:279682201306:cluster/azavea-production",
+  "cluster_name": "azavea-production"
+}

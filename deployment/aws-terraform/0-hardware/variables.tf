@@ -8,6 +8,11 @@ variable "environment" {
   description="Name of target environment (e.g., production, staging, QA, etc.).  This will be set by wrapper scripts from the active profile, avoid setting in the .tfvars file"
 }
 
+variable "project_prefix" {
+  type=string
+  description="The project name prefix used to identify cluster resources.  This will be set by wrapper scripts; avoid setting in the .tfvars file!"
+}
+
 variable "num_base_instances" {
   type = number
   description = "Number of instances to be provided in the base group"
@@ -20,10 +25,10 @@ variable "base_instance_type" {
   default = "t3.medium"
 }
 
-variable "worker_instance_types" {
-  type=list(string)
-  description="The menu of node instance types for worker nodes"
-}
+# variable "worker_instance_types" {
+#   type=list(string)
+#   description="The menu of node instance types for worker nodes"
+# }
 
 variable "user_map" {
   type = list(object({username: string, userarn: string, groups: list(string)}))
