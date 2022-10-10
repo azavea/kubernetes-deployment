@@ -51,6 +51,9 @@ module "daskhub_irsa" {
 }
 
 resource "kubernetes_annotations" "daskhub_iam_annotation" {
+  depends_on       = [
+    helm_release.dask_gateway
+  ]
   api_version = "v1"
   kind = "ServiceAccount"
   metadata {

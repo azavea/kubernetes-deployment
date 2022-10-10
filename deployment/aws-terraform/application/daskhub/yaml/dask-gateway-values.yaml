@@ -4,6 +4,8 @@ enabled: true  # Enabling dask-gateway will install Dask Gateway as a dependency
 gateway:
   prefix: "/services/dask-gateway"  # Users connect to the Gateway through the JupyterHub service.
   loglevel: INFO
+  nodeSelector:
+    node-type: core
   auth:
     type: jupyterhub  # Use JupyterHub to authenticate with Dask Gateway
   extraConfig:
@@ -23,8 +25,31 @@ gateway:
     scheduler:
       memory:
         request: "16G"
+      extraPodConfig:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values:
+                      - worker
+    worker:
+      extraPodConfig:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values:
+                      - worker
 
 traefik:
+  nodeSelector:
+    node-type: core
   service:
     type: ClusterIP  # Access Dask Gateway through JupyterHub. To access the Gateway from outside JupyterHub, this must be changed to a `LoadBalancer`.
 
