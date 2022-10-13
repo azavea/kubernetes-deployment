@@ -49,11 +49,10 @@ c = get_config()
 c.ServerApp.contents_manager_class = S3ContentsManager
 c.S3ContentsManager.bucket = "${var.jupyter_notebook_s3_bucket}"
 c.S3ContentsManager.prefix = fulluser
-logger.debug(f'Configured S3ContentsManager for bucket={c.S3ContentsManager.bucket} and prefix={fulluser}')
+logger.warn(f'Configured S3ContentsManager for bucket={c.S3ContentsManager.bucket} and prefix={fulluser}')
 
 # Fix JupyterLab dialog issues
 #c.ServerApp.root_dir = ""
 
-assert False
 EOF
 }
