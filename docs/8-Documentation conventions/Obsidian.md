@@ -33,5 +33,5 @@ For the moment, the default core plugins are enabled as well as the tag pane and
 2. [Wikilink](https://en.wikipedia.org/wiki/Help:Link) syntax ^wikilink
 3. #documentation_style 
 4. [[Maps of Content]]
-5. [Obsidian sync]() ^obsidian-sync
+5. [Obsidian sync](https://obsidian.md/sync) ^obsidian-sync
 6. [Obsidian git plugin](https://github.com/denolehov/obsidian-git) ^obsidian-git
