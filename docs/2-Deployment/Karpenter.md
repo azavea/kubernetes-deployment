@@ -10,7 +10,7 @@ Karpenter is an open source project, but it's main disadvantage is that it is de
 ## Setting up the provisioner
 Configuring Karpenter involves the creation of a manifest of `kind: Provisioner`.  Full documentation is [[#^provisioner-config|here]].  In practice, the provisioner configuration needs to be set so that new nodes are placed into the correct subnets and security groups.  Because base capacity needs to be provided (Karpenter, for instance, needs a place to run its pods), the security group for that base node group should be used or additional configuration will be needed to allow for communication with the default node group.
 
-It may also be desirable to identify the nodes created by Karpenter, so that application pods can target them.  A useful way to approach this is through the use of node labels, which can interact with node affinities in pod specs.  Note that the [[#^k8s-labels|well-known labels]] are generally [[#^karpenter-label-restrictions|prohibited]] for use as labels.
+It may also be desirable to identify the nodes created by Karpenter, so that application pods can target them.  A useful way to approach this is through the use of node labels, which can interact with node affinities in pod specs.  Note that the [[#^k8s-labels|well-known labels]] are generally [[#^karpenter-label-restrictions|prohibited]] for use as labels.  For our purposes, we'll apply the `node-type` label with a value of `worker` for Karpenter-created nodes (`core` will be applied to nodes in the base node group).
 
 A reference provisioner configuration:
 ```yaml
@@ -20,7 +20,7 @@ metadata:
   name: default
 spec:
   labels:
-    created-by: karpenter
+    node-type: worker
   requirements:
     - key: karpenter.sh/capacity-type
       operator: In

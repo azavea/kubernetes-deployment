@@ -10,6 +10,7 @@ The remainder of this README is a [map of content](<8-Documentation conventions/
 
 ## Index
 ### General concepts
+[[Azavea-standard Kubernetes architecture]]
 
 ### Deployment resources
 [[Common add-ons]]

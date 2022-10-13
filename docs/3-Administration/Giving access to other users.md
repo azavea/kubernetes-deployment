@@ -1,11 +1,11 @@
 # Giving access to other users
 Created: 2022-07-08, 14:18
 
-When creating an EKS cluster, not just any user has the capability to work with the cluster.  By default, the user that created the cluster has administrative privileges.  Any other user who wishes to interact directly with the cluster—as opposed to with the applications run by the cluster through, for instance, web endpoints—must be granted specific authorization.  This is provided, on AWS, via the `aws-auth` ConfigMap.
+When creating an EKS cluster, not just any user has the capability to work with the cluster.  By default, the user that created the cluster has administrative privileges.  Any other user who wishes to interact directly with the cluster—using, for instance, `kubectl`, as opposed to hitting the web endpoints of the applications running on the cluster—must be granted specific authorization.  This is provided, on AWS, via the `aws-auth` ConfigMap.
 
 A [[#^configmap-docs|ConfigMap]] is a standard Kubernetes object used to configure applications.  In the case of EKS access, the `aws-auth` ConfigMap is the mechanism used to grant access to various accounts, roles, and/or users.  It is possible to tune this ConfigMap directly via `kubectl` or Lens, but persistent configuration changes should be made via more durable and discoverable pathways, such as Terraform, `eksctl`, or some other infrastructure management tool.  If using Terraform for deployment, one can pass a list of authorized users to the [[#^auth-users|aws_auth_users]] input to the EKS module (or to the `aws_auth_roles` or `aws_auth_accounts` inputs of same).
 
-The parameters to `aws_auth_users` map users to groups, which are rule-based access control objects created on the cluster through the use of (Cluster)RoleBindings, which depend on (Cluster)Roles that describe permitted groups of actions.  There are some standard groups, but it is often best to create one's own (Cluster)RoleBindings from existing or custom (Cluster)Roles.
+The parameters to `aws_auth_users` map users to groups, which are [[Role-based Access Control|role-based access control]] objects created on the cluster through the use of (Cluster)RoleBindings, which depend on (Cluster)Roles that describe permitted groups of actions.  There are some standard groups, but it is often best to create one's own (Cluster)RoleBindings from existing or custom (Cluster)Roles.
 
 An example ClusterRoleBinding to grant a user fairly broad ability to view cluster resources with the ([[#^default-roles|system-provided]]) `view` ClusterRole:
 ```yaml
