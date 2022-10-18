@@ -7,6 +7,14 @@ In addition, Karpenter is more efficient about the allocation of resources than 
 
 Karpenter is an open source project, but it's main disadvantage is that it is developed by Amazon, and currently only supports that provider.
 
+### Requirements for deploying
+There are some non-Terraform steps that might be required to make Karpenter work.  It is necessary to have access to EC2 spot, which may be guaranteed by running
+```bash
+aws iam create-service-linked-role --aws-service-name spot.amazonaws.com
+```
+
+It is also necessary, due to [this configuration](https://github.com/aws/karpenter/blob/main/charts/karpenter/values.yaml#L73-L77) that the base node group has 2 or more nodes.  See [here](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/) for more information on the pod topologies that are at the heart of this requirement.
+
 ## Setting up the provisioner
 Configuring Karpenter involves the creation of a manifest of `kind: Provisioner`.  Full documentation is [[#^provisioner-config|here]].  In practice, the provisioner configuration needs to be set so that new nodes are placed into the correct subnets and security groups.  Because base capacity needs to be provided (Karpenter, for instance, needs a place to run its pods), the security group for that base node group should be used or additional configuration will be needed to allow for communication with the default node group.
 
@@ -42,9 +50,23 @@ spec:
 ```
 Note that the `subnetSelector` and `securityGroupSelector` are targeting tags on the AWS resources.  EKS documentation can be consulted to see what tags will be assigned to various resources.
 
+## Troubleshooting
+### Webhook startup
+I ran into a strange problem when upgrading to v0.16.3 involving the webhook containers failing to start up.  The errors looked like
+```
+2022/10/17 16:44:47 http: TLS handshake error from 10.0.2.158:41826: tls: no certificates configured
+```
+and it caused an endless backoff restart issue.  The solution was to clear the leases:
+```
+kubectl delete leases.coordination.k8s.io -n karpenter --all
+````
+
+See this [[#^webhook-startup-issue|slack post]] (signup required) for details.
+
 ## Links/Tags/References
 1. https://karpenter.sh/
 2. https://karpenter.sh/v0.8.1/provisioner/ ^provisioner-config
 3.  https://kubernetes.io/docs/reference/labels-annotations-taints/ ^k8s-labels
 4. https://github.com/aws/karpenter/issues/1802 ^karpenter-label-restrictions
-5. #AWS
+5. https://kubernetes.slack.com/archives/C02SFFZSA2K/p1664138530425369?thread_ts=1664041617.803179&cid=C02SFFZSA2K ^webhook-startup-issue
+6. #AWS
