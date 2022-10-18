@@ -83,7 +83,8 @@ module "karpenter_controller_irsa_role" {
   role_name                          = "karpenter-controller"
   attach_karpenter_controller_policy = true
 
-  karpenter_controller_cluster_id         = module.eks.id
+  karpenter_tag_key = "karpenter.sh/discovery/${local.cluster_name}"
+  karpenter_controller_cluster_id = module.eks.id
   karpenter_controller_node_iam_role_arns = [module.eks.base_node_iam_role_arn]
 
   oidc_providers = {
@@ -123,6 +124,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
         "aws:eks:cluster-name": ${local.cluster_name}
       tags:
         ${var.project_prefix}/kubernetes: 'provisioner'
+        karpenter.sh/discovery/${module.eks.id}: ${module.eks.id}
       instanceProfile:
         KarpenterNodeInstanceProfile-${local.cluster_name}
     ttlSecondsAfterEmpty: 30
