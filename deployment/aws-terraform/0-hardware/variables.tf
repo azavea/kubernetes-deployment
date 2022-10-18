@@ -13,6 +13,12 @@ variable "project_prefix" {
   description="The project name prefix used to identify cluster resources.  This will be set by wrapper scripts; avoid setting in the .tfvars file!"
 }
 
+variable "cluster_version" {
+  type = string
+  description = "The Kubernetes version to deploy"
+  default = null
+}
+
 variable "num_base_instances" {
   type = number
   description = "Number of instances to be provided in the base group"
@@ -24,11 +30,6 @@ variable "base_instance_type" {
   description = "The instance type to use for the always-on core instance running system pods"
   default = "t3.medium"
 }
-
-# variable "worker_instance_types" {
-#   type=list(string)
-#   description="The menu of node instance types for worker nodes"
-# }
 
 variable "user_map" {
   type = list(object({username: string, userarn: string, groups: list(string)}))
