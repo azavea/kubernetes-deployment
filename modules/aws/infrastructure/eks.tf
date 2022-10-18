@@ -89,6 +89,7 @@ module "eks" {
       desired_size = var.num_base_instances
       labels = {
         node-type = "core"
+        "hub.jupyter.org/node-purpose" = "core"
       }
     }
   }
