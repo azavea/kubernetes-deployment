@@ -15,7 +15,7 @@ variable "project_prefix" {
 
 variable "karpenter_chart_version" {
   type = string
-  default = "v0.6.3"
+  default = "v0.16.3"
 }
 
 variable "worker_instance_types" {

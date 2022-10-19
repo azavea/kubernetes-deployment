@@ -15,6 +15,7 @@ module "eks" {
       resolve_conflicts        = "OVERWRITE"
       service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
     }
+    aws-ebs-csi-driver = {}
   }
 
   # cluster_encryption_config = [{
@@ -27,6 +28,8 @@ module "eks" {
     # Ref: https://github.com/terraform-aws-modules/terraform-aws-eks/pull/2006
     # Ref: https://github.com/terraform-aws-modules/terraform-aws-eks/pull/2008
     Name = var.app_name
+    GithubRepo = var.repo_name
+    GithubOrg = "azavea"
   }
 
   vpc_id     = module.vpc.vpc_id

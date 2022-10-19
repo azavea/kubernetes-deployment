@@ -20,7 +20,7 @@ variable "repo_name" {
 
 variable "cluster_version" {
   type = string
-  default = "1.22"
+  default = "1.23"
 }
 
 variable "num_base_instances" {
