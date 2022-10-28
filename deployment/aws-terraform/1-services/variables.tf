@@ -101,12 +101,12 @@ variable "rds_allocated_storage" {
 }
 
 variable "rds_engine_version" {
-  default = 12.8
+  default = 13.7
   type    = number
 }
 
 variable "rds_parameter_group_family" {
-  default = "postgres12"
+  default = "postgres13"
   type    = string
 }
 
