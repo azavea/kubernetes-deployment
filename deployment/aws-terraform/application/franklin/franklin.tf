@@ -4,13 +4,6 @@ resource "kubernetes_namespace" "franklin" {
   }
 }
 
-# resource "kubernetes_service_account" "franklin" {
-#   metadata {
-#     name = "default"
-#     namespace = "franklin"
-#   }
-# }
-
 resource "kubernetes_deployment" "franklin" {
   depends_on = [kubernetes_namespace.franklin]
   metadata {
@@ -39,6 +32,10 @@ resource "kubernetes_deployment" "franklin" {
 
       spec {
         service_account_name = "default"
+
+        node_selector = {
+          "node-type" = "core"
+        }
 
         container {
           image = "quay.io/azavea/franklin:${var.franklin_image_tag}"
@@ -70,12 +67,12 @@ resource "kubernetes_deployment" "franklin" {
           }
           env {
             name = "DB_PORT"
-            value = module.database.port
+            value = var.rds_port
           }
 
           resources {
             requests = {
-              cpu = "0.5"
+              cpu = "250m"
               memory = "1Gi"
             }
           }
@@ -93,6 +90,21 @@ resource "kubernetes_deployment" "franklin" {
           #   initial_delay_seconds = 3
           #   period_seconds = 30
           # }
+        }
+
+        init_container {
+          image = "${aws_ecr_repository.franklin_db_setup.repository_url}:${var.pgstac_version}"
+          name = "db-setup"
+
+          command = [
+            "python",
+            "/asset/install_pgstac.py",
+            "--database-name", var.rds_database_name,
+            "--username", var.rds_database_username,
+            "--password", var.rds_database_password,
+            "--database-host", var.rds_fqdn,
+            "--database-port", var.rds_port
+          ]
         }
       }
     }

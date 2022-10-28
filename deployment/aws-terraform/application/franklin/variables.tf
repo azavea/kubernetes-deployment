@@ -18,9 +18,19 @@ variable "franklin_image_tag" {
   description="Tag string for Franklin image hosted at quay.io/azavea/franklin"
 }
 
+variable "pgstac_version" {
+  type = string
+  description = "PGSTAC version to install on RDS"
+}
+
 variable "rds_fqdn" {
   type = string
-  database = "The fully-qualified domain name of the database host"
+  description = "The fully-qualified domain name of the database host"
+}
+
+variable "rds_port" {
+  type = number
+  description = "The port number for the database host"
 }
 
 variable "rds_database_name" {
