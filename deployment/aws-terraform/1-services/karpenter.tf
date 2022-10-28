@@ -31,19 +31,22 @@ resource "aws_iam_role_policy" "karpenter_controller" {
       {
         Action = [
           "ec2:CreateLaunchTemplate",
+          "ec2:DescribeLaunchTemplates",
+          "ec2:DeleteLaunchTemplate",
           "ec2:CreateFleet",
           "ec2:RunInstances",
           "ec2:CreateTags",
           "iam:PassRole",
           "ec2:TerminateInstances",
-          "ec2:DescribeLaunchTemplates",
           "ec2:DescribeInstances",
           "ec2:DescribeSecurityGroups",
           "ec2:DescribeSubnets",
           "ec2:DescribeInstanceTypes",
           "ec2:DescribeInstanceTypeOfferings",
           "ec2:DescribeAvailabilityZones",
-          "ssm:GetParameter"
+          "ssm:GetParameter",
+          "pricing:GetProducts",
+          "ec2:DescribeSpotPriceHistory"
         ]
         Effect   = "Allow"
         Resource = "*"
@@ -74,6 +77,11 @@ resource "helm_release" "karpenter" {
   set {
     name  = "clusterEndpoint"
     value = module.eks.endpoint
+  }
+
+  set {
+    name = "logLevel"
+    value = "info"
   }
 }
 
@@ -117,20 +125,35 @@ resource "kubectl_manifest" "karpenter_provisioner" {
     limits:
       resources:
         cpu: 1000
-    provider:
-      subnetSelector:
-        kubernetes.io/cluster/${local.cluster_name}: '*'
-      securityGroupSelector:
-        "aws:eks:cluster-name": ${local.cluster_name}
-      tags:
-        ${var.project_prefix}/kubernetes: 'provisioner'
-        karpenter.sh/discovery/${module.eks.id}: ${module.eks.id}
-      instanceProfile:
-        KarpenterNodeInstanceProfile-${local.cluster_name}
+    providerRef:
+      name: default
     ttlSecondsAfterEmpty: 30
   YAML
 
   depends_on = [
     helm_release.karpenter
+  ]
+}
+
+resource "kubectl_manifest" "karpenter_node_template" {
+  yaml_body = <<-YAML
+  apiVersion: karpenter.k8s.aws/v1alpha1
+  kind: AWSNodeTemplate
+  metadata:
+    name: default
+  spec:
+    subnetSelector:
+      kubernetes.io/cluster/${local.cluster_name}: '*'
+    securityGroupSelector:
+      "aws:eks:cluster-name": ${local.cluster_name}
+    tags:
+      ${var.project_prefix}/kubernetes: 'provisioner'
+      karpenter.sh/discovery/${module.eks.id}: ${module.eks.id}
+    instanceProfile:
+      KarpenterNodeInstanceProfile-${local.cluster_name}
+  YAML
+
+  depends_on = [
+    kubectl_manifest.karpenter_provisioner
   ]
 }
