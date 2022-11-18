@@ -1,0 +1,27 @@
+server:
+  serviceType: LoadBalancer
+  servicePort: 443
+  servicePortName: https
+  nodeSelector:
+    node-type: core
+  extraArgs:
+    - --auth-mode=sso
+    #- --auth-mode=client
+    - --insecure-skip-verify
+  secure: true
+  sso:
+    # issuer: https://accounts.google.com
+    clientId:
+      name: argo-server-oauth
+      key: client_id
+    clientSecret:
+      name: argo-server-oauth
+      key: client_secret
+    rbac:
+      enabled: true
+      # secretWhitelist: []
+    scopes:
+      # - groups
+      - email
+      - profile
+      - openid

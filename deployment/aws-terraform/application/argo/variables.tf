@@ -15,5 +15,25 @@ variable "project_prefix" {
 
 variable "argo_workflows_chart_version" {
   type = string
-  default = "0.16.8"
+  description = "Helm chart version to use with Argo (see https://artifacthub.io/packages/helm/argo/argo-workflows)"
+  default = "0.20.7"
+}
+
+variable "artifact_bucket_name" {
+  type = string
+  description = "Name of the S3 bucket in which to keep artifacts for workflows (will create)"
+}
+
+variable "r53_public_hosted_zone" {
+  type = string
+}
+
+variable "cognito_user_pool_id" {
+  type = string
+  description = "(Passed in from previous stage; don't set manually)"
+}
+
+variable "cognito_user_pool_endpoint" {
+  type = string
+  description = "(Passed in from previous stage; don't set manually)"
 }
