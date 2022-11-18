@@ -23,6 +23,27 @@ variable "worker_instance_types" {
   description="The menu of node instance types for worker nodes"
 }
 
+variable "create_cognito_pool" {
+  type = bool
+  description = "Flag to determine if a Cognito user pool should be created"
+  default = false
+}
+
+variable "auth_domain_prefix" {
+  type = string
+  description = "Domain prefix for Cognito OAuth"
+}
+
+variable "google_identity_client_id" {
+  type = string
+  description = "Client ID for Google identity provider"
+}
+
+variable "google_identity_client_secret" {
+  type = string
+  description = "Client ID for Google identity provider"
+}
+
 variable "r53_rds_private_hosted_zone" {
   type = string
   default = null
@@ -33,6 +54,12 @@ variable "create_rds_instance" {
   type = bool
   description = "Flag to determine if an RDS instance should be created"
   default = false
+}
+
+variable "rds_secret_namespaces" {
+  type = set(string)
+  description = "The list of namespaces in which to create the rdsCredentials secret"
+  default = []
 }
 
 variable "rds_database_identifier" {
