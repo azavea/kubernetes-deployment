@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "artifact_store" {
-  bucket = var.artifact_bucket_name
+  bucket = "${var.artifact_bucket_prefix}-${local.cluster_name}-${var.aws_region}"
 
   tags = local.tags
 }

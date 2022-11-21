@@ -19,7 +19,7 @@ variable "argo_workflows_chart_version" {
   default = "0.20.7"
 }
 
-variable "artifact_bucket_name" {
+variable "artifact_bucket_prefix" {
   type = string
   description = "Name of the S3 bucket in which to keep artifacts for workflows (will create)"
 }

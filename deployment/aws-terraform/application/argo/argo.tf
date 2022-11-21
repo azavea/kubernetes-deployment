@@ -37,9 +37,24 @@ resource "helm_release" "argo_workflows" {
     name = "server.sso.issuer"
     value = "https://${var.cognito_user_pool_endpoint}"
   }
+}
 
-  set {
-    name = "artifactRepository.s3.bucket"
-    value = var.artifact_bucket_name
+resource "kubernetes_config_map" "default_repository" {
+  metadata {
+    name = "artifact-repositories"
+    namespace = "argo"
+    annotations = {
+      "workflows.argoproj.io/default-artifact-repository" = "default-artifact-store"
+    }
+  }
+
+  data = {
+    default-artifact-store = <<CONFIG
+ s3:
+   bucket: ${aws_s3_bucket.artifact_store.bucket}
+   endpoint: s3.amazonaws.com
+   useSDKCreds: true
+   region: ${var.aws_region}
+CONFIG
   }
 }
