@@ -40,7 +40,7 @@ variable "letsencrypt_contact_email" {
 
 variable "pangeo_notebook_version" {
   type = string
-  description = "Version of pangeo"
+  description = "Version of pangeo-notebook image"
   default = "2022.05.18"
 }
 

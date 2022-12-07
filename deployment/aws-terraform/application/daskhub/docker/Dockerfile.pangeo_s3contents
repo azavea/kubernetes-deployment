@@ -1,8 +1,7 @@
 ARG PANGEO_VERSION
-FROM pangeo/base-notebook:$PANGEO_VERSION
+FROM pangeo/pangeo-notebook:$PANGEO_VERSION
 
-RUN pip3 install s3contents xarray zarr geopandas matplotlib rechunker tqdm pyproj pyarrow fastparquet
-# RUN conda init
-# RUN conda activate notebook && \
-#     conda install -n notebook -y xarray zarr geopandas matplotlib rechunker tqdm pyproj
+#RUN conda init
+#RUN conda install -y expat gdal
+RUN pip3 install s3contents fastparquet psycopg2-binary
 COPY --chmod=444 jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
