@@ -1,0 +1,31 @@
+controller:
+  workflowNamespaces:
+    - argo
+server:
+  serviceType: LoadBalancer
+  servicePort: 443
+  servicePortName: https
+  nodeSelector:
+    node-type: core
+  extraArgs:
+    - --auth-mode=sso
+    - --insecure-skip-verify
+  secure: true
+  sso:
+    clientId:
+      name: argo-server-oauth
+      key: client_id
+    clientSecret:
+      name: argo-server-oauth
+      key: client_secret
+    rbac:
+      enabled: true
+    scopes:
+      - email
+      - profile
+      - openid
+artifactRepository:
+  archiveLogs: true
+workflow:
+  serviceAccount:
+    name: default

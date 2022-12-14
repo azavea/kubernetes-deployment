@@ -115,6 +115,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
   spec:
     labels:
       node-type: worker
+      hub.jupyter.org/node-purpose: user
     requirements:
       - key: karpenter.sh/capacity-type
         operator: In

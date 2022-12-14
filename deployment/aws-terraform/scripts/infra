@@ -77,6 +77,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
     S3_SETTINGS_KEY=${ENVIRONMENT}
     TERRAFORM_EXTRA_ARGS=${TERRAFORM_EXTRA_ARGS:-}
+    TERRAFORM_DESTROY_ARGS=${TERRAFORM_DESTROY_ARGS:-}
 
     case "${STAGE}" in
         0-hardware)
@@ -134,13 +135,16 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
                       -backend-config="bucket=${S3_SETTINGS_BUCKET}" \
                       -backend-config="key=${S3_SETTINGS_KEY}/terraform/${STAGE}" \
                       -backend-config="region=${REGION}"
-            terraform plan \
-                      -destroy \
-                      -var "aws_region=${REGION}" \
-                      -var "environment=${ENVIRONMENT}" \
-                      -var "project_prefix=${PROJECT_NAME}" \
-                      -var-file "../terraform-${ENVIRONMENT}.tfvars" \
-                      -out=azavea-k8s-destroy.tfplan
+            PLAN_COMMAND="terraform plan \
+                                    -destroy \
+                                    ${TERRAFORM_DESTROY_ARGS} \
+                                    -var \"aws_region=${REGION}\" \
+                                    -var \"environment=${ENVIRONMENT}\" \
+                                    -var \"project_prefix=${PROJECT_NAME}\" \
+                                    -var-file \"../terraform-${ENVIRONMENT}.tfvars\" \
+                                    ${EXTRA_VARS} \
+                                    -out=\"azavea-k8s-destroy.tfplan\""
+            eval ${PLAN_COMMAND}
             terraform apply \
                       -destroy \
                       azavea-k8s-destroy.tfplan

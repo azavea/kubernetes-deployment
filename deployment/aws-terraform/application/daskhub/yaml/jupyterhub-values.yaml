@@ -68,3 +68,22 @@ singleuser:
     guarantee: 8G
   nodeSelector:
     node-type: worker
+  extraEnv:
+    PGUSER:
+      valueFrom:
+        secretKeyRef:
+          name: rds-credentials
+          key: username
+          optional: true
+    PGPASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: rds-credentials
+          key: password
+          optional: true
+    PGHOST:
+      valueFrom:
+        secretKeyRef:
+          name: rds-credentials
+          key: host
+          optional: true

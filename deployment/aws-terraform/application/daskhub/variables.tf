@@ -18,15 +18,20 @@ variable "auth_domain_prefix" {
   description = "Domain prefix for Cognito OAuth"
 }
 
-variable "google_identity_client_id" {
+variable "cognito_user_pool_id" {
   type = string
-  description = "Client ID for Google identity provider"
+  description = "(Passed in from previous stage; don't set manually)"
 }
 
-variable "google_identity_client_secret" {
-  type = string
-  description = "Client ID for Google identity provider"
-}
+# variable "google_identity_client_id" {
+#   type = string
+#   description = "Client ID for Google identity provider"
+# }
+
+# variable "google_identity_client_secret" {
+#   type = string
+#   description = "Client ID for Google identity provider"
+# }
 
 variable "jupyter_notebook_s3_bucket" {
   type = string
