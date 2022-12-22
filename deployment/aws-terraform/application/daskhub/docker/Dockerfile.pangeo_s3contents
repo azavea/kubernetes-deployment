@@ -1,7 +1,10 @@
 ARG PANGEO_VERSION
 FROM pangeo/pangeo-notebook:$PANGEO_VERSION
 
-#RUN conda init
-#RUN conda install -y expat gdal
+USER root
+RUN apt-get update && apt-get install -y p7zip
+USER jovyan
+
 RUN pip3 install s3contents fastparquet psycopg2-binary
+RUN pip3 install py3dep==0.13.7 pynhd==0.13.7 pygeohydro==0.13.7 pydaymet==0.13.7 pygeoogc==0.13.7 pygeoutils==0.13.7 async_retriever
 COPY --chmod=444 jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
