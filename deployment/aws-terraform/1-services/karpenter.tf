@@ -136,6 +136,38 @@ resource "kubectl_manifest" "karpenter_provisioner" {
   ]
 }
 
+# Here, we set the behavior of Karpenter; see https://karpenter.sh/v0.6.3/aws/provisioning/
+resource "kubectl_manifest" "karpenter_provisioner_big" {
+  yaml_body = <<-YAML
+  apiVersion: karpenter.sh/v1alpha5
+  kind: Provisioner
+  metadata:
+    name: big-disk
+  spec:
+    labels:
+      node-type: worker
+      hub.jupyter.org/node-purpose: user
+      disk-size: large
+    requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["spot"]
+      - key: node.kubernetes.io/instance-type
+        operator: In
+        values: ${jsonencode(var.worker_instance_types)}
+    limits:
+      resources:
+        cpu: 1000
+    providerRef:
+      name: big-disk
+    ttlSecondsAfterEmpty: 30
+  YAML
+
+  depends_on = [
+    helm_release.karpenter
+  ]
+}
+
 resource "kubectl_manifest" "karpenter_node_template" {
   yaml_body = <<-YAML
   apiVersion: karpenter.k8s.aws/v1alpha1
@@ -152,6 +184,33 @@ resource "kubectl_manifest" "karpenter_node_template" {
       karpenter.sh/discovery/${module.eks.id}: ${module.eks.id}
     instanceProfile:
       KarpenterNodeInstanceProfile-${local.cluster_name}
+  YAML
+
+  depends_on = [
+    kubectl_manifest.karpenter_provisioner
+  ]
+}
+
+resource "kubectl_manifest" "karpenter_node_template_big_disk" {
+  yaml_body = <<-YAML
+  apiVersion: karpenter.k8s.aws/v1alpha1
+  kind: AWSNodeTemplate
+  metadata:
+    name: big-disk
+  spec:
+    subnetSelector:
+      kubernetes.io/cluster/${local.cluster_name}: '*'
+    securityGroupSelector:
+      "aws:eks:cluster-name": ${local.cluster_name}
+    tags:
+      ${var.project_prefix}/kubernetes: 'provisioner'
+      karpenter.sh/discovery/${module.eks.id}: ${module.eks.id}
+    instanceProfile:
+      KarpenterNodeInstanceProfile-${local.cluster_name}
+    blockDeviceMappings:
+      - deviceName: /dev/xvda
+        ebs:
+          volumeSize: 128Gi
   YAML
 
   depends_on = [
