@@ -1,6 +1,3 @@
-rbac:
-  enabled: true
-
 proxy:
   service:
     type: LoadBalancer
@@ -64,6 +61,23 @@ singleuser:
   defaultUrl: "/lab"  # Use jupyterlab by default.
   storage:
     type: none
+    extraVolumeMounts:
+      - mountPath: "/scratch"
+        name: scratch-volume
+    extraVolumes:
+      - name: scratch-volume
+        ephemeral:
+          volumeClaimTemplate:
+            metadata:
+              labels:
+                type: jupyter-singleuser-scratch
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              storageClassName: gp2
+              volumeMode: Filesystem
+              resources:
+                requests:
+                  storage: 128Gi
   memory:
     guarantee: 8G
   nodeSelector:
