@@ -23,7 +23,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         export ENVIRONMENT=${ENVIRONMENT:-$PROVIDED_ENV}
         CONFIGURED_REGION=$(aws configure get region)
         export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-$CONFIGURED_REGION}
-        BUCKET_PREFIX=${BUCKET_PREFIX:-noaa-kubernetes-settings}
+        BUCKET_PREFIX=${BUCKET_PREFIX:-azavea-kubernetes-settings}
         export S3_SETTINGS_BUCKET=${S3_SETTINGS_BUCKET:-${BUCKET_PREFIX}-${AWS_DEFAULT_REGION}}
         export DOCKER_GID=$(getent group docker | awk -F: '{print $3}')
 
