@@ -42,6 +42,10 @@ gateway:
                     values:
                       - worker
     worker:
+      extraContainerConfig:
+        env:
+        - name: MALLOC_TRIM_THRESHOLD_ # See https://github.com/pangeo-data/rechunker/issues/100#issuecomment-933832834
+          value: "0"
       extraPodConfig:
         affinity:
           nodeAffinity:
