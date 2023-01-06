@@ -79,7 +79,7 @@ singleuser:
                 requests:
                   storage: 128Gi
   memory:
-    guarantee: 8G
+    guarantee: 16G
   nodeSelector:
     node-type: worker
   extraEnv:

@@ -15,9 +15,15 @@ gateway:
       def option_handler(options):
           return {
               "worker_memory": int(options.worker_memory * 2**30),
+              "worker_cores": int(options.worker_cores),
+              "scheduler_cores": int(options.scheduler_cores),
+              "scheduler_memory": int(options.scheduler_memory * 2**30)
           }
       c.Backend.cluster_options = Options(
           Integer("worker_memory", default=4, min=1, max=31, label="Worker memory (GB)"),
+          Integer("worker_cores", default=1, min=1, max=8, label="Number of cores per worker"),
+          Integer("scheduler_memory", default=8, min=1, max=31, label="Scheduler memory (GB)"),
+          Integer("scheduler_cores", default=1, min=1, max=8, label="Number of cores for scheduler"),
           handler=option_handler,
       )
       c.KubeClusterConfig.idle_timeout = 1800
@@ -36,6 +42,10 @@ gateway:
                     values:
                       - worker
     worker:
+      extraContainerConfig:
+        env:
+        - name: MALLOC_TRIM_THRESHOLD_ # See https://github.com/pangeo-data/rechunker/issues/100#issuecomment-933832834
+          value: "0"
       extraPodConfig:
         affinity:
           nodeAffinity:
@@ -46,6 +56,10 @@ gateway:
                     operator: In
                     values:
                       - worker
+                  - key: disk-size
+                    operator: In
+                    values:
+                      - large
 
 traefik:
   nodeSelector:
