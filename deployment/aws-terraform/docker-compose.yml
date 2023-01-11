@@ -21,7 +21,7 @@ services:
     environment:
       - AWS_PROFILE
       - AWS_DEFAULT_REGION
-      - PROJECT_NAME=${PROJECT_NAME:-azavea}
+      - PROJECT_NAME=${PROJECT_NAME:-noaa}
       - ENVIRONMENT
       - DEBUG
       - EDITOR=vi
