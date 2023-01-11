@@ -20,3 +20,12 @@ resource "helm_release" "efs_csi_driver" {
     value = "602401143452.dkr.ecr.${var.aws_region}.amazonaws.com/eks/aws-efs-csi-driver"
   }
 }
+
+resource  "kubernetes_storage_class_v1" "efs_sc" {
+  metadata {
+    name = "efs-sc"
+  }
+  storage_provisioner = "efs.csi.aws.com"
+
+  depends_on = [ helm_release.efs_csi_driver ]
+}
