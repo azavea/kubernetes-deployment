@@ -1,15 +1,3 @@
-resource  "kubernetes_storage_class_v1" "efs_sc" {
-  metadata {
-    name = "efs-sc"
-  }
-  storage_provisioner = "efs.csi.aws.com"
-  # parameters = {
-  #   provisioning_mode = "efs-ap"
-  #   directory_perms = "700"
-  #   file_system_id = aws_efs_file_system.noaa.id
-  # }
-}
-
 resource "kubernetes_persistent_volume_v1" "noaa" {
   metadata {
     name = "noaa-hydro-data"
