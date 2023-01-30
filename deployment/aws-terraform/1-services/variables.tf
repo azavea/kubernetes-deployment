@@ -44,6 +44,12 @@ variable "google_identity_client_secret" {
   description = "Client ID for Google identity provider"
 }
 
+variable "use_efs_csi" {
+  type = bool
+  description = "Install EFS CSI driver"
+  default = false
+}
+
 variable "r53_rds_private_hosted_zone" {
   type = string
   default = null

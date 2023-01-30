@@ -1,4 +1,5 @@
 resource "helm_release" "efs_csi_driver" {
+  count = local.use_efs
   namespace        = "kube-system"
 
   name       = "aws-efs-csi-driver"
@@ -22,10 +23,12 @@ resource "helm_release" "efs_csi_driver" {
 }
 
 resource  "kubernetes_storage_class_v1" "efs_sc" {
+  count = local.use_efs
+
   metadata {
     name = "efs-sc"
   }
   storage_provisioner = "efs.csi.aws.com"
 
-  depends_on = [ helm_release.efs_csi_driver ]
+  depends_on = [ helm_release.efs_csi_driver[0] ]
 }

@@ -30,6 +30,8 @@ resource "kubernetes_annotations" "ebs_csi_iam_annotation" {
 }
 
 module "efs_csi_irsa" {
+  count = local.use_efs
+
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name_prefix      = "efs-csi-${local.cluster_name}"
@@ -48,6 +50,8 @@ module "efs_csi_irsa" {
 }
 
 module "efs_csi_irsa_node" {
+  count = local.use_efs
+
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name_prefix      = "efs-csi-node-${local.cluster_name}"
@@ -66,6 +70,8 @@ module "efs_csi_irsa_node" {
 }
 
 resource "kubernetes_annotations" "efs_csi_iam_annotation" {
+  count = local.use_efs
+
   api_version = "v1"
   kind = "ServiceAccount"
   metadata {
@@ -73,11 +79,13 @@ resource "kubernetes_annotations" "efs_csi_iam_annotation" {
     namespace = "kube-system"
   }
   annotations = {
-    "eks.amazonaws.com/role-arn": module.efs_csi_irsa.iam_role_arn
+    "eks.amazonaws.com/role-arn": module.efs_csi_irsa[0].iam_role_arn
   }
 }
 
 resource "kubernetes_annotations" "efs_csi_node_annotation" {
+  count = local.use_efs
+
   api_version = "v1"
   kind = "ServiceAccount"
   metadata {
@@ -85,6 +93,6 @@ resource "kubernetes_annotations" "efs_csi_node_annotation" {
     namespace = "kube-system"
   }
   annotations = {
-    "eks.amazonaws.com/role-arn": module.efs_csi_irsa_node.iam_role_arn
+    "eks.amazonaws.com/role-arn": module.efs_csi_irsa_node[0].iam_role_arn
   }
 }
