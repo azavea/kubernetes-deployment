@@ -50,6 +50,12 @@ variable "use_efs_csi" {
   default = false
 }
 
+variable "use_fsx_csi" {
+  type = bool
+  description = "Install CSI driver for FSx for Lustre volumes"
+  default = false
+}
+
 variable "r53_rds_private_hosted_zone" {
   type = string
   default = null

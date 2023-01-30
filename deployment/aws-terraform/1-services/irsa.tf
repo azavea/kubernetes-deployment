@@ -50,6 +50,8 @@ module "efs_csi_irsa" {
 }
 
 module "fsx_csi_irsa" {
+  count = local.use_fsx
+
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name_prefix      = "fsx-csi-${local.cluster_name}"
@@ -112,15 +114,19 @@ resource "kubernetes_annotations" "efs_csi_node_annotation" {
   }
   annotations = {
     "eks.amazonaws.com/role-arn": module.efs_csi_irsa_node[0].iam_role_arn
-
-resource "kubernetes_annotations" "fsx_csi_controller_annotation" {
-  api_version = "v1"
-  kind = "ServiceAccount"
-  metadata {
-    name = "fsx-csi-controller-sa"
-    namespace = "kube-system"
-  }
-  annotations = {
-    "eks.amazonaws.com/role-arn": module.fsx_csi_irsa.iam_role_arn
   }
 }
+
+# resource "kubernetes_annotations" "fsx_csi_controller_annotation" {
+#   count = local.use_fsx
+
+#   api_version = "v1"
+#   kind = "ServiceAccount"
+#   metadata {
+#     name = "fsx-csi-controller-sa"
+#     namespace = "kube-system"
+#   }
+#   annotations = {
+#     "eks.amazonaws.com/role-arn": module.fsx_csi_irsa[0].iam_role_arn
+#   }
+# }
