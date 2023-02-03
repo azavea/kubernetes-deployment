@@ -106,7 +106,8 @@ resource "aws_iam_role" "ccf" {
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "${module.eks.oidc_provider}:aud": "sts.amazonaws.com"
+          "${module.eks.oidc_provider}:aud": "sts.amazonaws.com",
+          "${module.eks.oidc_provider}:sub": "system:serviceaccount:ccf:default"
         }
       }
     }
@@ -115,8 +116,31 @@ resource "aws_iam_role" "ccf" {
 EOF
 }
 
+resource "aws_iam_policy" "policy" {
+  name        = "ccf-policy"
+  role        = module.ccf_irsa.iam_role_arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action = [
+            "secretsmanager:GetResourcePolicy",
+            "secretsmanager:GetSecretValue",
+            "secretsmanager:DescribeSecret",
+            "secretsmanager:ListSecretVersionIds"
+        ]
+        Resource = [
+          "arn:aws:secretsmanager:us-east-1:279682201306:secret:btackaberry/prod/ccf/*",
+        ] 
+      },
+    ]
+  })
+}
+
 module "ccf_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  source = "terraform-aws-modules/iam/aws/modules/iam-role-for-service-accounts-eks"
 
   create_role = true
   role_name   = "ccf"
