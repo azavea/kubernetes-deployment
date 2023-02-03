@@ -106,8 +106,7 @@ resource "aws_iam_role" "ccf" {
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "${module.eks.oidc_provider}:aud": "sts.amazonaws.com",
-          "${module.eks.oidc_provider}:sub": "system:serviceaccount:daskhub:default"
+          "${module.eks.oidc_provider}:aud": "sts.amazonaws.com"
         }
       }
     }
