@@ -78,6 +78,7 @@ module "database" {
   backup_window              = var.rds_backup_window
   maintenance_window         = var.rds_maintenance_window
   auto_minor_version_upgrade = var.rds_auto_minor_version_upgrade
+  snapshot_identifier        = var.rds_source_snapshot_identifier
   final_snapshot_identifier  = var.rds_final_snapshot_identifier
   skip_final_snapshot        = var.rds_skip_final_snapshot
   copy_tags_to_snapshot      = var.rds_copy_tags_to_snapshot

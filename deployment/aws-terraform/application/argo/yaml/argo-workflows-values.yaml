@@ -5,12 +5,13 @@ server:
   serviceType: LoadBalancer
   servicePort: 443
   servicePortName: https
+  serviceAnnotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
   nodeSelector:
     node-type: core
   extraArgs:
     - --auth-mode=sso
-    - --insecure-skip-verify
-  secure: true
+  secure: false
   sso:
     clientId:
       name: argo-server-oauth

@@ -13,8 +13,4 @@ roleRef:
   name: view
   apiGroup: rbac.authorization.k8s.io
 YAML
-
-  depends_on = [
-    null_resource.kubectl
-  ]
 }
