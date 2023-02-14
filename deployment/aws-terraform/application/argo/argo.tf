@@ -37,6 +37,11 @@ resource "helm_release" "argo_workflows" {
     name = "server.sso.issuer"
     value = "https://${var.cognito_user_pool_endpoint}"
   }
+
+  set {
+    name = "server.serviceAnnotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-ssl-cert"
+    value = aws_acm_certificate.argo.arn
+  }
 }
 
 resource "kubernetes_config_map" "default_repository" {
