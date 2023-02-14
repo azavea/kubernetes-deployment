@@ -2,16 +2,6 @@ resource "random_id" "daskhub_token" {
   byte_length = 32
 }
 
-resource "kubernetes_secret" "dashub_auth_token" {
-  metadata {
-    namespace = "daskhub"
-    name = "auth-token"
-  }
-  data = {
-    token = random_id.daskhub_token.hex
-  }
-}
-
 resource "helm_release" "jupyterhub" {
   depends_on       = [
     module.eks.kubeconfig
@@ -125,4 +115,17 @@ resource "helm_release" "dask_gateway" {
     name = "gateway.backend.image.tag"
     value = var.pangeo_notebook_version
   }
+}
+
+resource "kubernetes_secret" "daskhub_auth_token" {
+  metadata {
+    namespace = "daskhub"
+    name = "auth-token"
+  }
+  data = {
+    token = random_id.daskhub_token.hex
+  }
+  depends_on = [
+    helm_release.dask_gateway
+  ]
 }
