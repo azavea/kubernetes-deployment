@@ -90,6 +90,11 @@ variable "rds_database_password" {
   default = null
 }
 
+variable "rds_source_snapshot_identifier" {
+  type = string
+  default = null
+}
+
 variable "rds_final_snapshot_identifier" {
   default = "rds-snapshot"
   type    = string
