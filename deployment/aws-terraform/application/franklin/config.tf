@@ -21,6 +21,11 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = "~> 1.14"
     }
+
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "2.16.0"
+    }
   }
 }
 
@@ -43,5 +48,19 @@ provider "kubernetes" {
     command     = "aws"
     # This requires the awscli to be installed locally where Terraform is executed
     args = ["eks", "get-token", "--cluster-name", module.eks.id]
+  }
+}
+
+data "aws_caller_identity" "this" {}
+data "aws_ecr_authorization_token" "token" {}
+
+provider "docker" {
+  host = "unix:///var/run/docker.sock"
+
+  registry_auth {
+    address  = format("%v.dkr.ecr.%v.amazonaws.com", data.aws_caller_identity.this.account_id, var.aws_region)
+    username = data.aws_ecr_authorization_token.token.user_name
+    password = data.aws_ecr_authorization_token.token.password
+    config_file = pathexpand("~/.docker/config.json")
   }
 }

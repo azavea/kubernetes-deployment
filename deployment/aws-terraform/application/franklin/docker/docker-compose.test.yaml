@@ -1,0 +1,36 @@
+version: '2.3'
+services:
+  pgstac_install:
+    container_name: test
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PGSTAC_VERSION=${PGSTAC_VERSION:-0.6.9}
+    depends_on:
+      - db
+    environment:
+      - BLAH=blah
+    command: 'python /asset/install_pgstac.py
+      --database-name franklin
+      --username pgstac
+      --password pgstac
+      --database-host db'
+  db:
+    container_name: db
+    #image: postgres:13
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    environment:
+      - POSTGRES_USER=pgstac
+      - POSTGRES_PASSWORD=pgstac
+      - POSTGRES_DB=pgstac
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "pgstac"]
+      interval: 3s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

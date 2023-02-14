@@ -4,13 +4,6 @@ resource "kubernetes_namespace" "franklin" {
   }
 }
 
-# resource "kubernetes_service_account" "franklin" {
-#   metadata {
-#     name = "default"
-#     namespace = "franklin"
-#   }
-# }
-
 resource "kubernetes_deployment" "franklin" {
   depends_on = [kubernetes_namespace.franklin]
   metadata {
@@ -40,6 +33,10 @@ resource "kubernetes_deployment" "franklin" {
       spec {
         service_account_name = "default"
 
+        node_selector = {
+          "node-type" = "core"
+        }
+
         container {
           image = "quay.io/azavea/franklin:${var.franklin_image_tag}"
           name = "franklin"
@@ -47,7 +44,7 @@ resource "kubernetes_deployment" "franklin" {
           args = [
             "serve",
             "--api-host", "${local.franklin_dns_prefix}.${var.r53_public_hosted_zone}",
-            "--api-scheme", "http",
+            "--api-scheme", "https",
             "--internal-port", "8080",
             "--with-transactions"
           ]
@@ -70,12 +67,12 @@ resource "kubernetes_deployment" "franklin" {
           }
           env {
             name = "DB_PORT"
-            value = module.database.port
+            value = var.rds_port
           }
 
           resources {
             requests = {
-              cpu = "0.5"
+              cpu = "250m"
               memory = "1Gi"
             }
           }
@@ -94,6 +91,21 @@ resource "kubernetes_deployment" "franklin" {
           #   period_seconds = 30
           # }
         }
+
+        init_container {
+          image = "${aws_ecr_repository.franklin_db_setup.repository_url}:${var.pgstac_version}"
+          name = "db-setup"
+
+          command = [
+            "python",
+            "/asset/install_pgstac.py",
+            "--database-name", var.rds_database_name,
+            "--username", var.rds_database_username,
+            "--password", var.rds_database_password,
+            "--database-host", var.rds_fqdn,
+            "--database-port", var.rds_port
+          ]
+        }
       }
     }
   }
@@ -105,7 +117,8 @@ resource "kubernetes_service" "franklin" {
     name = "franklin-service"
     namespace = "franklin"
     annotations = {
-      "service.beta.kubernetes.io/aws-load-balancer-extra-security-groups" = "${module.eks.cluster_security_group}"
+      "service.beta.kubernetes.io/aws-load-balancer-extra-security-groups" = module.eks.cluster_security_group
+      "service.beta.kubernetes.io/aws-load-balancer-ssl-cert" = aws_acm_certificate.franklin.arn
     }
   }
   spec {
@@ -113,67 +126,9 @@ resource "kubernetes_service" "franklin" {
       application = "franklin"
     }
     port {
-      port = 80
+      port = 443
       target_port = 8080
     }
     type = "LoadBalancer"
-  }
-}
-
-resource "aws_iam_role" "franklin" {
-  name = "franklin-irsa"
-  description = "IRSA trust policy for Franklin pods in default service account"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "${module.eks.oidc_provider_arn}"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "${module.eks.oidc_provider}:aud": "sts.amazonaws.com",
-          "${module.eks.oidc_provider}:sub": "system:serviceaccount:daskhub:default"
-        }
-      }
-    }
-  ]
-}
-EOF
-}
-
-module "franklin_irsa" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-
-  create_role = true
-  role_name = "franklin"
-
-  role_policy_arns = {
-    #s3_full_access = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-    rds_full_access = "arn:aws:iam::aws:policy/AmazonRDSDataFullAccess"
-  }
-
-  oidc_providers = {
-    main = {
-      provider = module.eks.oidc_provider
-      provider_arn = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["franklin:default"]
-    }
-  }
-}
-
-resource "kubernetes_annotations" "franklin_iam_annotation" {
-  api_version = "v1"
-  kind = "ServiceAccount"
-  metadata {
-    name = "default"
-    namespace = "franklin"
-  }
-  annotations = {
-    "eks.amazonaws.com/role-arn": aws_iam_role.franklin.arn
   }
 }
