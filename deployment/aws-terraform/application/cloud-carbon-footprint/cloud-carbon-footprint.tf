@@ -6,7 +6,7 @@ resource "kubernetes_namespace" "ccf" {
 
 module "api-deployment" {
   depends_on     = [kubernetes_namespace.ccf]
-  source         = "modules/deployment"
+  source         = "./modules/deployment"
   name           = "api"
   image          = "279682201306.dkr.ecr.us-east-1.amazonaws.com/btackaberry-ccf-api:latest"
   namespace      = kubernetes_namespace.ccf
@@ -15,7 +15,7 @@ module "api-deployment" {
 
 module "api-service" {
   depends_on             = [kubernetes_namespace.ccf]
-  source                 = "modules/service"
+  source                 = "./modules/service"
   name                   = "api"
   namespace              = kubernetes_namespace.ccf
   port                   = 3003
@@ -25,7 +25,7 @@ module "api-service" {
 
 module "dashboard-deployment" {
   depends_on     = [kubernetes_namespace.ccf]
-  source         = "modules/deployment"
+  source         = "./modules/deployment"
   name           = "dashboard"
   image          = "279682201306.dkr.ecr.us-east-1.amazonaws.com/btackaberry-ccf-dashboard:latest"
   namespace      = kubernetes_namespace.ccf
@@ -34,7 +34,7 @@ module "dashboard-deployment" {
 
 module "dashboard-service" {
   depends_on             = [kubernetes_namespace.ccf]
-  source                 = "modules/service"
+  source                 = "./modules/service"
   name                   = "dashboard"
   namespace              = kubernetes_namespace.ccf
   port                   = 3002
@@ -44,7 +44,7 @@ module "dashboard-service" {
 
 module "ccf-api-deployment" {
   depends_on     = [kubernetes_namespace.ccf]
-  source         = "modules/ccf-api-deployment"
+  source         = "./modules/ccf-api-deployment"
   name           = "ccf-api"
   image          = "docker.io/cloudcarbonfootprint/api:release-2022-10-17"
   namespace      = kubernetes_namespace.ccf
@@ -53,7 +53,7 @@ module "ccf-api-deployment" {
 
 module "ccf-api-service" {
   depends_on             = [kubernetes_namespace.ccf]
-  source                 = "modules/service"
+  source                 = "./modules/service"
   name                   = "ccf-api"
   namespace              = kubernetes_namespace.ccf
   port                   = 4000
@@ -63,7 +63,7 @@ module "ccf-api-service" {
 
 module "ingest-cronjob" {
   depends_on = [kubernetes_namespace.ccf]
-  source     = "modules/cronjob"
+  source     = "./modules/cronjob"
   name       = "ccf-api"
   namespace  = kubernetes_namespace.ccf
   image      = "279682201306.dkr.ecr.us-east-1.amazonaws.com/btackaberry-ccf-ingest:latest"
@@ -72,7 +72,7 @@ module "ingest-cronjob" {
 
 module "metabase-deployment" {
   depends_on     = [kubernetes_namespace.ccf]
-  source         = "modules/metabase-deployment"
+  source         = "./modules/metabase-deployment"
   name           = "metabase"
   image          = "metabase/metabase:latest"
   namespace      = kubernetes_namespace.ccf
@@ -81,7 +81,7 @@ module "metabase-deployment" {
 
 module "metabase-service" {
   depends_on             = [kubernetes_namespace.ccf]
-  source                 = "modules/service"
+  source                 = "./modules/service"
   name                   = "metabase"
   namespace              = kubernetes_namespace.ccf
   port                   = 3000
@@ -133,14 +133,14 @@ resource "aws_iam_policy" "policy" {
         ]
         Resource = [
           "arn:aws:secretsmanager:us-east-1:279682201306:secret:btackaberry/prod/ccf/*",
-        ] 
+        ]
       },
     ]
   })
 }
 
 module "ccf_irsa" {
-  source = "terraform-aws-modules/iam/aws/modules/iam-role-for-service-accounts-eks"
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   create_role = true
   role_name   = "ccf"

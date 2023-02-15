@@ -1,5 +1,4 @@
 variable "CCF_AWS_USE_BILLING_DATA" {}
-variable "CCF_AWS_USE_BILLING_DATA" {}
 variable "CCF_CCF_AWS_BILLING_ACCOUNT_ID" {}
 variable "CCF_AWS_BILLING_ACCOUNT_NAME" {}
 variable "CCF_AWS_ATHENA_REGION" {}
